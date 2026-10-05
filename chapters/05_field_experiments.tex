@@ -43,8 +43,117 @@ $(x_{k+1}, y_{k+1}, \theta_{k+1})$ 次の位置姿勢です．
 
 \subsection{更新}
 微小時間 $\Delta t$ の間の並進速度 $v$ および角速度 $\omega$ を使って更新されます．
+\subsection{2台の3D-LiDAR間の位置姿勢補正}
 
+2台の3D-LiDAR間の位置・姿勢ずれを補正するため，LiDAR 1の点群を基準としてLiDAR 2の点群にICPを適用した．
+7フレームについて得られたICP補正量を\cref{tab:icp_correction}に示す．
+
+\begin{table}[tb]
+    \centering
+    \caption{ICPによって算出された補正量}
+    \label{tab:icp_correction}
+    \begin{tabular}{c|rrr|rrr|r}
+        \hline
+        データ & $x$ [m] & $y$ [m] & $z$ [m] & Roll [deg] & Pitch [deg] & Yaw [deg] & Score \\
+        \hline
+        1 & 0.033 & -0.011 & -0.036 & 0.982 & -0.336 & 0.491 & 2.454 \\
+        2 & 0.033 & -0.008 & -0.038 & 1.014 & -0.510 & 0.456 & 2.273 \\
+        3 & 0.031 & -0.010 & -0.035 & 0.935 & -0.226 & 0.510 & 2.119 \\
+        4 & 0.029 & -0.007 & -0.035 & 0.946 & -0.264 & 0.518 & 2.380 \\
+        5 & 0.017 &  0.003 & -0.034 & 0.999 & -0.233 & 0.441 & 2.186 \\
+        6 & 0.025 &  0.000 & -0.039 & 0.938 & -0.469 & 0.473 & 2.289 \\
+        7 & 0.017 &  0.001 & -0.034 & 0.926 & -0.184 & 0.422 & 2.303 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+ICPによって得られた補正量の統計値を\cref{tab:icp_correction_stats}に示す．
+
+\begin{table}[tb]
+    \centering
+    \caption{ICP補正量の統計値}
+    \label{tab:icp_correction_stats}
+    \begin{tabular}{c|rrrr}
+        \hline
+        項目 & 平均 & 最小値 & 最大値 & 標準偏差 \\
+        \hline
+        $x$ [m]       &  0.0264 &  0.017 &  0.033 & 0.0065 \\
+        $y$ [m]       & -0.0046 & -0.011 &  0.003 & 0.0053 \\
+        $z$ [m]       & -0.0359 & -0.039 & -0.034 & 0.0018 \\
+        Roll [deg]    &  0.963  &  0.926 &  1.014 & 0.032  \\
+        Pitch [deg]   & -0.317  & -0.510 & -0.184 & 0.117  \\
+        Yaw [deg]     &  0.473  &  0.422 &  0.518 & 0.033  \\
+        Score         &  2.286  &  2.119 &  2.454 & 0.104  \\
+        \hline
+    \end{tabular}
+\end{table}
+
+並進補正量の大きさは平均45.3~mm，最小38.0~mm，最大51.0~mmであった．
+また，回転補正量の大きさは平均1.12~deg，最大1.22~degであった．
+
+これらの結果をもとに，LiDAR 2に適用する固定補正値を\cref{tab:fixed_correction}のように設定した．
+
+\begin{table}[tb]
+    \centering
+    \caption{LiDAR 2に適用する固定補正値}
+    \label{tab:fixed_correction}
+    \begin{tabular}{rrr|rrr}
+        \hline
+        $x$ [m] & $y$ [m] & $z$ [m] & Roll [deg] & Pitch [deg] & Yaw [deg] \\
+        \hline
+        0.026 & -0.006 & -0.034 & 0.95 & -0.20 & 0.47 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+固定補正値を適用した後，再度ICPを用いて残差を評価した．
+結果を\cref{tab:icp_residual}に示す．
+
+\begin{table}[tb]
+    \centering
+    \caption{固定補正適用後のICP残差}
+    \label{tab:icp_residual}
+    \begin{tabular}{c|rrr|rrr|r}
+        \hline
+        データ & $x$ [m] & $y$ [m] & $z$ [m] & Roll [deg] & Pitch [deg] & Yaw [deg] & Score \\
+        \hline
+        1 &  0.001 &  0.000 & -0.001 & -0.011 & -0.018 & 0.012 & 2.376 \\
+        2 & -0.003 &  0.004 &  0.000 & -0.016 &  0.064 & 0.039 & 2.341 \\
+        3 &  0.004 & -0.001 & -0.001 &  0.049 & -0.109 & 0.023 & 2.355 \\
+        4 &  0.006 &  0.001 & -0.004 &  0.089 & -0.315 & 0.003 & 2.299 \\
+        5 &  0.007 & -0.005 & -0.002 &  0.031 & -0.148 & 0.025 & 2.331 \\
+        6 &  0.000 &  0.000 &  0.000 & -0.004 &  0.011 & 0.005 & 2.118 \\
+        7 &  0.001 & -0.001 &  0.000 & -0.010 &  0.010 & 0.028 & 2.300 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+固定補正後の残差の統計値を\cref{tab:icp_residual_stats}に示す．
+
+\begin{table}[tb]
+    \centering
+    \caption{固定補正後の残差}
+    \label{tab:icp_residual_stats}
+    \begin{tabular}{c|rrr}
+        \hline
+        項目 & 平均残差 & 平均絶対残差 & 最大絶対残差 \\
+        \hline
+        $x$ [m]       &  0.0023 & 0.0031 & 0.007 \\
+        $y$ [m]       & -0.0003 & 0.0017 & 0.005 \\
+        $z$ [m]       & -0.0011 & 0.0011 & 0.004 \\
+        Roll [deg]    &  0.018  & 0.030  & 0.089 \\
+        Pitch [deg]   & -0.072  & 0.096  & 0.315 \\
+        Yaw [deg]     &  0.019  & 0.019  & 0.039 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+3次元の並進残差の大きさは平均4.0~mm，最大8.8~mmであった．
+以上より，ICPから算出した補正値を固定値として適用することで，
+2台の3D-LiDAR間の点群ずれを1~cm以内まで低減できることを確認した．
 \section{考察}
 \label{sec:exp_discussion}
+
+
 
 考察します．
