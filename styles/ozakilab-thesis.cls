@@ -93,20 +93,20 @@
   },%
 }
 
-\ModifyHeading{section}{
-  lines = 3,%
-  before_lines = 1,%
-}
+% \ModifyHeading{section}{
+%   lines = 3,%
+%   before_lines = 1,%
+% }
 
-\ModifyHeading{subsection}{
-  lines = 3,%
-  before_lines = 1,%
-}
+% \ModifyHeading{subsection}{
+%   lines = 3,%
+%   before_lines = 1,%
+% }
 
-\ModifyHeading{subsubsection}{
-  lines = 3,%
-  before_lines = 1,%
-}
+% \ModifyHeading{subsubsection}{
+%   lines = 3,%
+%   before_lines = 1,%
+% }
 
 % ========== 目次の最初のページは柱を非表示 ==========
 \let\jlreq@original@tableofcontents\tableofcontents
