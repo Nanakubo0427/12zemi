@@ -44,6 +44,10 @@
   backref = true,%
 ]{biblatex}
 
+% ========== misc のタイトルを通常書体にする ==========
+\DeclareFieldFormat[misc]{title}{#1}
+% 雑誌名を斜体にしない
+\DeclareFieldFormat[article]{journaltitle}{#1}
 
   % ========== 見出しタイトルの変更 ==========
 \defbibheading{bibliography}{\chapter*{参考文献}}
