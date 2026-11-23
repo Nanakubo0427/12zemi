@@ -1,14 +1,448 @@
 \chapter{シミュレーション評価}
 \label{cha:simulation_experiments}
-\graphicspath{{figures/05_simulation_experiments}}
+\graphicspath{{figures/06}}
+
+\section{自己位置推定の実験}
+\subsection{実験方法}
+本研究では，開発したMag MCL，Wi-Fi MCLと従来手法を比較するとともに，
+車や自転車などの幾何情報が変化する環境における提案手法の有効性を検証する．
+実験は宇都宮大学陽東キャンパスの敷地内で実施し，\cref{fig:path}の2つの経路で評価を行った．
+Path 2に含まれる駐車場および駐輪場では，車，自転車および太陽光パネルを含む環境で幾何地図を作成した後，
+これらの物体を地図上から意図的に削除した．
+実験時にはこれらの物体が実際に存在する状態で走行することで，
+地図と実環境の幾何情報が異なる状況を再現した．
+実験方法は，ロボットが地図作成のための経路と実験用の経路を走行し，磁気強度，オドメトリ，LiDARによる
+点群情報，そしてWi-Fi強度情報をrosbagに記録した．
+その後，rosbagから幾何地図，磁気地図，Wi-Fi地図を作成した．
+最後に，実験用のrosbagからLiDAR MCL（ESS＝1.0）と提案手法の比較を行った．
+Wi-Fi MCLのESSの閾値は0.99，その他の手法の閾値は0.9，パーティクル数は1000個とし，
+磁気地図および屋外地図のグリッドサイズは0.2[m]，Wi-Fi地図は1.0[m]とした．
+また位置推定切り替えシステムの各閾値は，LiDAR平均尤度は0.2，Wi-Fi電波強度平均尤度は0.0085，磁気強度平均尤度は2.0，95\%誤差楕円の長軸半径は2.0[m]とした．
+
+\begin{figure}[tb]
+  \centering
+  \begin{subfigure}[t]{0.4\columnwidth}
+    \centering
+    \includegraphics[width=\linewidth]{Path1.png}
+    \caption{Path1}
+    \label{fig:path1}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[t]{0.4\columnwidth}
+    \centering
+    \includegraphics[width=\linewidth]{Path2.png}
+    \caption{Path2}
+    \label{fig:Path2}
+  \end{subfigure}
+  \caption{Path used for Experiment}
+  \label{fig:path}
+\end{figure}
+
+% 右段に Table 1 -> Table 2 -> Fig. 2 -> Fig. 3 の順で配置
+\begin{figure}[!t]
+  \centering
+
+  % ==========================================================
+  % Table 1: Path 1
+  % ==========================================================
+\begin{minipage}{\columnwidth}
+  \centering
+  \captionof{table}{Position and heading errors on Path 1}
+  \label{tab:path1_localization_error}
+  \scriptsize
+  \setlength{\tabcolsep}{3.8pt}
+  \renewcommand{\arraystretch}{1.08}
+  \small
+
+  \begin{tabular}{lrrrrrr}
+    \toprule
+    &
+    \multicolumn{3}{c}{Position error [m]} &
+    \multicolumn{3}{c}{Heading error [deg]} \\
+    \cmidrule(lr){2-4}
+    \cmidrule(lr){5-7}
+    Method &
+    MAE & Std. & Max. &
+    MAE & Std. & Max. \\
+    \midrule
+    LiDAR
+      & 0.33 & 0.14 & 0.90
+      & 0.44 & 0.50 & 9.08 \\
+    Multi
+      & 0.31 & 0.15 & 0.77
+      & 0.45 & 0.46 & 8.76 \\
+    Mag
+      & 2.34 & 1.46 & 5.59
+      & 2.92 & 2.41 & 10.54 \\
+    Mag w/o Heading
+      & 2.36 & 1.41 & 5.73
+      & 3.09 & 2.63 & 15.50 \\
+    Wi-Fi
+      & 2.48 & 1.17 & 5.63
+      & 3.45 & 2.61 & 12.31 \\
+    Conventional Wi-Fi
+      & 3.06 & 1.71 & 8.77
+      & 5.05 & 4.18 & 17.79 \\
+    Pose Selector
+      & 0.33 & 0.14 & 0.75
+      & 0.43 & 0.47 & 9.08 \\
+    \bottomrule
+  \end{tabular}
+\end{minipage}
+
+  \vspace{1.2em}
+
+  % ==========================================================
+  % Table 2: Path 2
+  % ==========================================================
+\begin{minipage}{\columnwidth}
+  \centering
+  \captionof{table}{Position and heading errors on Path 2}
+  \label{tab:path2_localization_error}
+  \scriptsize
+  \setlength{\tabcolsep}{3.8pt}
+  \renewcommand{\arraystretch}{1.08}
+  \small
+
+  \begin{tabular}{lrrrrrr}
+    \toprule
+    &
+    \multicolumn{3}{c}{Position error [m]} &
+    \multicolumn{3}{c}{Heading error [deg]} \\
+    \cmidrule(lr){2-4}
+    \cmidrule(lr){5-7}
+    Method &
+    MAE & Std. & Max. &
+    MAE & Std. & Max. \\
+    \midrule
+    LiDAR
+      & 13.28 & 14.72 & 53.47
+      & 14.28 & 18.53 & 76.04 \\
+    Multi
+      & 0.56 & 0.66 & 4.08
+      & 1.56 & 2.02 & 13.46 \\
+    Mag
+      & 1.47 & 0.89 & 5.40
+      & 2.51 & 1.98 & 17.56 \\
+    Mag w/o Heading
+      & 1.59 & 1.00 & 4.24
+      & 2.70 & 2.09 & 15.69 \\
+    Wi-Fi
+      & 2.84 & 1.35 & 7.01
+      & 3.17 & 2.37 & 12.60 \\
+    Conventional Wi-Fi
+      & 3.36 & 1.95 & 10.15
+      & 5.56 & 5.45 & 35.53 \\
+    Pose Selector
+      & 0.56 & 0.66 & 4.08
+      & 1.55 & 2.03 & 13.46 \\
+    \bottomrule
+  \end{tabular}
+\end{minipage}
+
+  \vspace{1.2em}
+
+  % ==========================================================
+  % Fig. 2: Path 1
+  % 図幅は元の 0.7\columnwidth のまま
+  % ==========================================================
+  \begin{minipage}{\columnwidth}
+    \centering
+    \includegraphics[
+      width=0.9\columnwidth
+    ]{path1_result.png}
+    \captionof{figure}{
+      Comparison of localization trajectories on Path 1
+    }
+    \label{fig:path1_result}
+  \end{minipage}
+
+  \vspace{1.2em}
+
+  % ==========================================================
+  % Fig. 3: Path 2
+  % 図幅は元の 0.7\columnwidth のまま
+  % ==========================================================
+  \begin{minipage}{\columnwidth}
+    \centering
+    \includegraphics[
+      width=0.9\columnwidth
+    ]{path2_result.png}
+    \captionof{figure}{
+      Comparison of localization trajectories on Path 2
+    }
+    \label{fig:path2_result}
+  \end{minipage}
+
+\end{figure}
+
+\subsection{実験結果}
+Path 1およびPath 2の実験結果を
+\cref{tab:path1_localization_error}および
+\cref{tab:path2_localization_error}に，
+各自己位置推定手法の推定軌跡を
+\cref{fig:path1_result}および
+\cref{fig:path2_result}に示す．
+\cref{tab:path1_localization_error}，\cref{tab:path2_localization_error}の結果から，
+Mag MCLは，方位尤度を使用しない従来のMag MCLと比較して，
+位置誤差および角度誤差の最大値は増加したものの，
+平均誤差が低減したことから，方位尤度の導入により位置推定精度が
+改善された．
+次に，Wi-Fi MCLは，Path 1およびPath 2の両方において，
+従来手法と比較して位置誤差および角度誤差が低減した．
+さらに，\cref{tab:path1_localization_error}および
+\cref{tab:path2_localization_error}に示す最大位置誤差それぞれ5.63[m]および7.01[m]であり，
+先行研究\cite{akiyama2026wifi}における最大位置誤差9.19[m]を
+いずれも下回っていることから，本手法の有効性が確認された．
+また，\cref{fig:path2_result}に示すように，
+Path 2では，実環境に存在する車両，自転車および太陽光パネルが
+幾何地図から削除されているため，
+地図とLiDAR観測の間に不一致が生じ，
+LiDAR MCLの自己位置推定精度が低下した．
+一方，Multi MCLは平均位置誤差が小さく，
+真値の軌跡に追従していることから，
+異なるセンサ情報を統合することの優位性が確認された．
+最後に，LiDAR MCLの失敗検知システムでは，\cref{fig:priority}から位置推定信頼度が低下した区間において，
+選択する自己位置推定がLiDAR MCLからMulti MCLへ切り替わった．
+このことから，幾何情報の変化によりLiDARに基づく位置推定精度が低下する環境において，
+提案した自己位置推定切替システムの有効性が確認された．
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[
+    width=0.9\columnwidth
+  ]{priority.png}
+  \caption{
+    Temporal changes in the priority values of each localization method
+    and the pose selector on Path 2
+  }
+  \label{fig:priority}
+\end{figure}
+
+\section{考察}
+実験結果から本研究で開発したMag MCL，Wi-Fi MCLは真値の軌跡に追従し，自己位置推定ができていることがわかる．
+\cref{fig:mahalanobis_result}に，
+各時刻における真値とMag MCLおよびWi-Fi MCLの
+パーティクル分布との二乗マハラノビス距離の分布を示す．
+Mag MCLでは，Path 1において95\%誤差楕円外となった割合は1.79\%，
+99\%誤差楕円外となった割合は0.74\%であった．
+一方，Path 2では95\%誤差楕円外となった割合は0.055\%であり，
+99\%誤差楕円外となるデータ点は確認されなかった．
+Wi-Fi MCLでは，Path 1における95\%誤差楕円外となった割合は2.06\%であり，
+99\%誤差楕円外となるデータ点は確認されなかった．
+また，Path 2では95\%および99\%誤差楕円外となる
+データ点は確認されなかった．
+以上より，Mag MCLおよびWi-Fi MCLは，
+大部分の区間で真値付近のパーティクルを保持していたと推察できる．
+したがって，LiDAR MCLの優先度が低下した際に，
+これらのパーティクル分布を利用することで，
+自己位置推定の復帰に有効なパーティクルをサンプリングできる可能性がある．
+
+次に，位置推定切り替えシステムについて考察する．
+\cref{tab:lidar_failure_detection}に，
+Path 2におけるLiDAR MCLの失敗検知の性能を，
+適合率（Precision），再現率（Recall）および
+偽陽性率（FPR）を用いて評価した結果を示す．
+本研究では，高精度な位置推定手法であるLiDAR MCLにおいて，
+位置誤差が1[m]以上となった状態を推定失敗として扱った．
+LiDAR平均尤度およびパーティクル分布の広がりを用いた判定は，
+再現率が高く，多くの推定失敗を検出できた．
+一方で，適合率が比較的低く，偽陽性率が高いことから，
+LiDAR MCLが正しい位置を推定している場合にも，
+誤って失敗と判定される可能性がある．
+また，これらのLiDAR情報のみに基づく指標では，
+幾何構造が類似した場所に誤収束した場合に，
+推定失敗を検出できない可能性がある．
+一方，LiDAR MCLの推定位置が
+Wi-Fi MCLおよびMag MCLの推定分布内に存在するかを評価する指標と，
+LiDAR MCLのパーティクルに対するWi-Fi平均尤度を用いた指標は，
+再現率は他の指標より低いものの，
+適合率が高く，偽陽性率が低い結果となった．
+したがって，これらの指標は検出可能な失敗が限定される一方で，
+正常な位置推定を失敗と誤判定する可能性が低く，
+信頼性の高い判定指標であると考察できる．
+このことから，提案した指標を組み合わせて位置推定手法を切り替えることは，
+ロバストな自己位置推定に有効である．
+
+最後に，Multi MCLは，
+幾何情報が変化する環境においても高い位置推定精度を示した．
+しかし，位置誤差が2\sim 4[m]程度となった区間では，
+真値がMulti MCLの99\%誤差楕円外となる場合が確認された．
+Multi MCLではLiDAR尤度も統合に用いているため，
+LiDAR MCLと同様に，
+幾何構造が類似した位置へ局所的に誤収束する可能性を排除できない．
+そのため，Multi MCLのみを使用するのではなく，
+Wi-Fi MCLおよびMag MCLを並列に動作させ，
+各推定結果の整合性および信頼度を相互に評価することが，
+自己位置推定システム全体のロバスト性向上に有効であると考える．
+
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[
+    width=0.9\columnwidth
+  ]{mahalanobis_full_range_with_max.png}
+  \caption{
+    Comparison of squared Mahalanobis distance distributions for Mag MCL and Wi-Fi MCL on Path1 and Path2
+  }
+  \label{fig:mahalanobis_result}
+\end{figure}
+
+\begin{table}[t]
+  \centering
+  \caption{Performance of the LiDAR MCL failure detection on Path 2}
+  \label{tab:lidar_failure_detection}
+  \scriptsize
+  \setlength{\tabcolsep}{4.0pt}
+  \renewcommand{\arraystretch}{1.08}
+  \small
+
+  \begin{tabular}{lrrr}
+    \toprule
+    Detection criterion &
+    Recall [\%] &
+    Precision [\%] &
+    FPR [\%] \\
+    \midrule
+    LiDAR likelihood
+      & 91.08 & 86.63 & 32.15 \\
+    Particle spread
+      & 99.79 & 85.79 & 37.81 \\
+    Wi-Fi and Mag ellipses
+      & 74.38 & 100.00 & 0.00 \\
+    Wi-Fi likelihood
+      & 68.83 & 99.29 & 1.12 \\
+    \midrule
+    Pose Selector
+      & 100.00 & 84.97 & 40.48 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+
+\section{結言}
+本稿では，磁気強度およびWi-Fi電波強度を用いた不可視地図に基づく自己位置推定と，
+不可視地図とLiDARを統合した自己位置推定手法を提案した．
+実験の結果，磁気およびWi-Fiを用いた自己位置推定の精度が向上し，
+幾何情報が変化した環境においても提案手法が有効であることを確認した．
+さらに，LiDAR MCLの位置推定失敗を検知し，
+自己位置推定手法を動的に切り替えるシステムを構築し，
+その有効性を示した．
+今後は，LiDAR MCLの位置推定復帰手法を構築するとともに，
+オドメトリの変化を伴わない誘拐状態の検知および復帰を可能とする
+自己位置推定システムの実現を目指す．
+
+
 
 
 \section{シミュレーション環境の構築}
 \label{sec:sim_environment}
 
-環境をつくりました．
-あああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ
+本研究では，LiDAR，地磁気，Wi-Fi，およびこれらを組み合わせた Multi MCL を並列に動作させ，各 MCL の推定状態に応じて粒子を共有する手法を提案する．各 MCL の観測整合性および粒子分布の状態を優先度として表し，その優先度に基づいて外部粒子の導入量と取り込み元を決定する．
 
+LiDAR MCL および Multi MCL では，自身の粒子フィルタによる推定を基本とし，推定状態の悪化に応じて他の MCL の位置仮説を導入する．一方，地磁気 MCL および Wi-Fi MCL は，単独では位置推定の精度や識別性が十分でない場合を想定し，通常状態でもリサンプリングのたびに外部粒子を導入する．このように，各 MCL の特性に応じて粒子共有の方針を変えることで，推定の継続性と，推定状態が悪化した際の回復を図る．
+
+各 MCL の優先度を $p_i$ とする．優先度は数値が小さいほど採用を優先し，異常状態を $p_i=100$ で表す．基準優先度は，LiDAR MCL と Multi MCL を $0$，地磁気 MCL を $80$，Wi-Fi MCL を $90$ とする．これは，良好な状態にある LiDAR・Multi MCL の位置仮説を優先的に利用し，地磁気・Wi-Fi MCL を補助的な位置仮説の供給源として扱う設計である．
+
+LiDAR MCL および Multi MCL の優先度は，平均 LiDAR 尤度と粒子分布の広がりから求める．平均 LiDAR 尤度には一次ローパスフィルタを適用し，一時的な観測変動の影響を抑える．
+\begin{equation}
+  \bar{\ell}_{i,t}
+  =
+  (1-\alpha)\bar{\ell}_{i,t-1}
+  +\alpha\ell_{i,t}.
+  \label{eq:lidar_likelihood_lpf}
+\end{equation}
+ここで，$\ell_{i,t}$ は時刻 $t$ における平均 LiDAR 尤度，$\bar{\ell}_{i,t}$ は平滑化後の値である．
+
+粒子分布の広がりには，粒子の二次元位置から等重みで算出した共分散行列 $\Sigma_{i,t}$ を用い，次式で表される誤差楕円の長半径を使用する．
+\begin{equation}
+  s_{i,t}
+  =
+  \sqrt{\chi^2_{2,0.95}\lambda_{\max}(\Sigma_{i,t})}.
+  \label{eq:particle_spread}
+\end{equation}
+ここで，$\lambda_{\max}$ は最大固有値であり，$\chi^2_{2,0.95}=5.991$ とする．この値は粒子分布の広がりを評価するための尺度として使用する．
+
+平滑化後の LiDAR 尤度と分布の広がりを，それぞれ事前に用意した参照テーブルにより，失敗指標 $q_{\ell,i,t}$，$q_{s,i,t}$ に変換する．参照テーブルには各指標の区間に対応する平滑化済みの失敗指標が格納されており，LiDAR 尤度の低下や粒子分布の拡大に伴う推定状態の悪化を評価する．各指標の上下限を超えた場合には，良好側を $0$，悪化側を $1$ とする．
+
+両指標の平均を
+\begin{equation}
+  \bar{q}_{i,t}
+  =
+  \frac{q_{\ell,i,t}+q_{s,i,t}}{2}
+  \label{eq:mean_failure_indicator}
+\end{equation}
+とし，通常時の優先度を
+\begin{equation}
+  p_{i,t}
+  =
+  \operatorname{clip}
+  \left(
+    \operatorname{round}
+    \left[
+      b_i+(u-b_i)\frac{\bar{q}_{i,t}}{\tau_q}
+    \right],
+    b_i,u
+  \right)
+  \label{eq:normal_priority}
+\end{equation}
+で算出する．ここで，$b_i$ は基準優先度，$u=80$ は通常時の上限，$\tau_q=0.8$ は失敗指標の判定閾値である．
+
+ただし，いずれかの失敗指標が閾値以上となった場合，LiDAR MCL では優先度を $100$ とする．Multi MCL では，LiDAR 以外の観測も使用することを考慮し，この条件だけでは異常状態とせず，優先度を通常時の上限 $80$ とする．指標の算出に必要な情報が無効な場合は，両 MCL とも優先度を $100$ とする．
+
+さらに，Wi-Fi 観測との整合性，および他の MCL との位置整合性によって異常判定を補完する．Wi-Fi 観測との整合性は，各 MCL が保持する粒子群の平均 Wi-Fi 尤度を用いて評価する．Wi-Fi 観測の更新時に閾値判定を行い，次の更新まではその結果を保持する．平均尤度が閾値未満の場合，または初回の判定が行われていない場合は，異常状態とする．
+
+位置整合性については，LiDAR MCL または Multi MCL の推定位置が，Wi-Fi MCL と地磁気 MCL の誤差楕円内にあるかを評価する．取り込み元として利用可能な両 MCL に対し，自身の推定位置が両方の楕円外にある場合は異常状態とする．楕円内外の判定には，共分散行列を正則化したマハラノビス距離を用いる．Wi-Fi 尤度判定または位置整合性判定が異常となった場合，LiDAR MCL と Multi MCL の優先度を $100$ に設定する．
+
+地磁気 MCL では，平均地磁気尤度が閾値以下の場合，または Wi-Fi 尤度判定が異常の場合に優先度を $100$ とし，それ以外では基準優先度 $80$ を用いる．Wi-Fi MCL では，Wi-Fi 尤度判定に応じて基準優先度 $90$ と異常時の $100$ を切り替える．
+
+粒子共有では，各 MCL の優先度に応じて，粒子集合の一部を他の MCL 由来の粒子で置き換える．外部粒子の導入割合を $\rho_i$ とし，次式で決定する．
+\begin{equation}
+  \rho_i
+  =
+  \begin{cases}
+    0.2,
+      & p_i=100, \\[3pt]
+    0.2\,
+    \operatorname{clip}
+    \left(
+      \dfrac{p_i-b_i}{80-b_i},0,1
+    \right),
+      & i\in\{\mathrm{LiDAR},\mathrm{Multi}\},
+        \quad p_i\ne100, \\[8pt]
+    0.2,
+      & i\in\{\mathrm{Mag},\mathrm{WiFi}\},
+        \quad p_i\ne100.
+  \end{cases}
+  \label{eq:particle_sharing_ratio}
+\end{equation}
+
+LiDAR MCL および Multi MCL は，優先度が基準値にある場合には自身の粒子のみを使用する．推定状態が悪化して優先度の数値が増加すると，外部粒子の割合を最大 $20\%$ まで増やす．これにより，自身の推定を維持しながら，状態の悪化に応じて他の MCL の位置仮説を取り込む．
+
+地磁気 MCL および Wi-Fi MCL は，通常状態でも外部粒子を $20\%$ 導入する．これは，単独観測による位置推定の曖昧さを，他の MCL が保持する位置仮説によって補うためである．なお，いずれの MCL も異常時の共有割合は $20\%$ であり，異常状態への移行によって共有割合をさらに増やす設定にはしていない．
+
+MCL $i$ の粒子数を $N_i$ とすると，外部から導入する粒子数は
+\begin{equation}
+  K_i
+  =
+  \operatorname{round}(N_i\rho_i)
+  \label{eq:external_particle_count}
+\end{equation}
+となる．自身から $N_i-K_i$ 個，他の MCL から合計 $K_i$ 個を抽出することで，総粒子数を維持する．
+
+取り込み元は，自身以外の MCL のうち，優先度が $0$ 以上 $95$ 以下であり，粒子情報が有効なものとする．利用可能な取り込み元の集合を $\mathcal{D}_i$ とし，MCL $j$ からの採用比率を
+\begin{equation}
+  a_{ij}
+  =
+  \frac{100-p_j}
+       {\displaystyle\sum_{k\in\mathcal{D}_i}(100-p_k)}
+  \label{eq:donor_allocation_ratio}
+\end{equation}
+で決定する．これにより，優先度の数値が小さい MCL ほど多くの粒子を提供する．採用数の整数化には最大剰余法を用い，外部粒子数の合計を $K_i$ に一致させる．利用可能な取り込み元が存在しない場合は，自身の粒子のみを使用する．
+
+各取り込み元の内部では，粒子重みに基づく系統的リサンプリングによって指定個数の粒子を抽出する．したがって，本手法は，MCL 間では優先度に基づいて採用数を配分し，各 MCL 内では観測に基づく粒子重みによって位置仮説を選択する，二段階の粒子選択として構成される．
+
+共有を伴うリサンプリングは，有効サンプルサイズに基づいて実行する．LiDAR・地磁気・Multi MCL では，通常時は有効サンプルサイズの低下に加え，前回のリサンプリングからの移動距離または回転角を実行条件とする．異常状態ではこれらの条件によらず実行する．Wi-Fi MCL では，Wi-Fi 観測の更新時に，有効サンプルサイズの低下または異常状態を条件として実行する．これにより，各 MCL の観測更新と推定状態に応じたタイミングで粒子集合を再構成する．
 
 \section{実験概要}
 \label{sec:sim_exp}

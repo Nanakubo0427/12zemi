@@ -1,54 +1,5 @@
-\chapter{ハードウェア設計}
-\label{cha:hardware_design}
-\graphicspath{{figures/03_hardware_design}}
-
-
-\section{システム構成}
-\label{sec:hardware_overview}
-
-システム構成は\ref{fig:hardware}です．
-ああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.3\linewidth]{ozaki.jpeg}
-  \caption{システム構成}
-  \label{fig:hardware}
-\end{figure}
-
-
-\section{機構設計}
-\label{sec:mechanical_design}
-
-移動機構とマニピュレータは\ref{fig:robot}です．
-かかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかかか
-\begin{figure}[htbp]
-  \centering
-  \begin{subfigure}[t]{0.3\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{miyagusuku.png}
-    \caption{移動機構}
-    \label{fig:miyagusuku}
-  \end{subfigure}
-  \hfil
-  \begin{subfigure}[t]{0.3\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{tabata.png}
-    \caption{マニピュレータ}
-    \label{fig:tabata}
-  \end{subfigure}
-  \caption{自律移動ロボット}
-  \label{fig:robot}
-\end{figure}
-
-\subsection{移動機構の設計}
-\ref{fig:miyagusuku}を説明します．
-きききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききききき
-
-\subsection{マニピュレータの設計}
-\ref{fig:tabata}を説明します．
-くくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくくく
-
-\chapter{Wi-FiとLiDARを用いた大域的自己位置推定}
+\chapter{移動ロボットシステムと自己位置推定}
+\graphicspath{{figures/03}}
 \section{はじめに}
 本章では，Wi-Fi尤度マップとLiDARによる大域的自己位置推定に関する手法を提案する．
 まず，前章で述べたWi-Fi信号強度を格納した地図を基に，ロボット存在確率を表すWi-Fi尤度マップを構築し，このマップを用いた大域的自己位置推定を行う手法について説明する．
@@ -142,12 +93,12 @@ gmappingにより生成される地図は，障害物があるグリッドを黒
 ここで，$\displaystyle z_{hit}$はガウス分布によるLiDARの重みを表し，観測のノイズや外れ値を考慮するためのパラメータである．
 また$\displaystyle m_{u,v}$は地図上の位置$\displaystyle u$，$\displaystyle v$における地図の占有確率を示す．
 $\displaystyle \sigma $はガウス分布の分散であり，占有の広がりを決定する要因である．
-% gmappingによる地図と占有格子地図に変換した地図を{\bf Fig.}~\ref{fig:gridmap}，{\bf Fig.}~\ref{fig:geomap}に示した．
+gmappingによる地図と占有格子地図に変換した地図を\cref{fig:gridmap}，\cref{fig:geomap}に示した．
 グリッドサイズは0.2[m]とした．
 \begin{figure}[h]
  \begin{minipage}{0.49\hsize}
   \begin{center}
-   \includegraphics[scale=0.1]{figures/map.pdf}
+   \includegraphics[scale=0.1]{map.pdf}
    \vspace{-3.0mm}
   \end{center}
    \vspace{-0.5mm}
@@ -156,7 +107,7 @@ $\displaystyle \sigma $はガウス分布の分散であり，占有の広がり
   \end{minipage}
  \begin{minipage}{0.49\hsize}
   \begin{center}
-   \includegraphics[scale=0.1]{figures/12zemi.pdf}
+   \includegraphics[scale=0.1]{12zemi.pdf}
    \vspace{-3.0mm}
   \end{center}
    \vspace{-0.5mm}
@@ -164,38 +115,7 @@ $\displaystyle \sigma $はガウス分布の分散であり，占有の広がり
   \label{fig:geomap}
   \end{minipage}
 \end{figure}
-\subsection{Wi-Fi地図}
-Wi-Fi地図の地図構築に必要なステップは下記の通りである．
-\subsection*{1. データ取得}
-ロボットを手動走行させ，オドメトリ，LiDARのスキャンデータ，Wi-Fi信号強度を記録する．
-次にオドメトリ，LiDARのスキャンデータから先ほどのgmappingを用いて幾何地図を作成する．
-幾何地図作成後，rosのAMCLから幾何地図を作成した際のデータを用いて自己位置推定を行う．
-その自己位置推定結果$\displaystyle \mathbf{x} =( x,y,\theta )$と,Wi-Fi信号強度の観測値$\displaystyle \mathbf{z}$に対応付けたデータセットを作成する．
-ただし，$\displaystyle \mathbf{z}$は，位置$\displaystyle \mathbf{x}$で観測できた異なる$\displaystyle m$個のAPの信号強度を並べたベクトル$\displaystyle \mathbf{z} =[ z_{1} ,z_{2} ,...,z_{m}]$である．
 
-この際，各マックアドレスのWi-Fiの信号強度は3秒間に観測されたデータの平均値とした．
-また，5か所以上でWi-Fiの信号強度を観測できたAPのみを使用した．
-これはモバイルAPを含まないようにするためである．
-ただしこれらの数値は，Wi-Fiの信号強度のノイズや減衰の状況などを考慮して決定したものではないため，より適切な数値の選択のための手法構築は今後の課題である．
-\subsection*{2. ガウス回帰過程}
-ロボットがデータ取得時に走行した経路上のみWi-Fi信号強度のデータが存在し，走行経路以外ではデータがないため，自己位置推定が不可能である．
-したがって，任意の経路で自己位置推定を行うためには，走行経路全域のWi-Fi信号強度を格納した地図が必要となる．
-そこで本研究室では，ガウス過程回帰(GPR:Gaussian Process Regression)を用いて，データセットをもとに走行経路外のWi-Fiの信号強度を補完することで，走行環境全域の信号強度の分布を予測した\cite{miyagusuku2018precise}．
-\subsection*{3. Wi-Fi地図作成}
-ガウス過程回帰により取得した分布をもとに，指定した解像度の格子にデータを格納することで，最終的なWi-Fi信号強度を用いた自己位置推定に用いる地図が完成する．
-予測値の平均値は各APごとに行われ，分散は全てのAPに共通するため，Wi-Fi地図はアクセスポイント数枚，分散地図は一枚となる．
-グリッドサイズは1[m]とした．
-\begin{figure}[h]
- \begin{minipage}{0.99\hsize}
-  \begin{center}
-   \includegraphics[scale=0.4]{figures/gprwifi.pdf}
-   \vspace{-3.0mm}
-  \end{center}
-   \vspace{-0.5mm}
-  \caption{Overview of wireless-based localization using signal strength mapping\cite{miyagusuku2018precise}}
-  \label{fig:gprwifi}
-  \end{minipage}
-\end{figure}
 \section{LiDARを用いた局所的自己位置推定}
 本研究室のLiDARを用いた自己位置推定はDellaertらによって提案されたMCL\cite{mcl}がベースとなっている．
 MCLとは，ロボットを疑似に表現したパーティクルと呼ばれる粒子を用いることで，ロボットの存在確率を表現する手法である．
@@ -280,7 +200,7 @@ y_{t} \\
 \begin{figure}[t]
  \begin{minipage}{0.99\hsize}
   \begin{center}
-   \includegraphics[scale=0.6]{figures/poseinglobalcoord.png}
+   \includegraphics[scale=0.6]{poseinglobalcoord.png}
    \vspace{-3.0mm}
   \end{center}
    \vspace{-0.5mm}
@@ -292,7 +212,7 @@ y_{t} \\
 \begin{figure}[h]
  \begin{minipage}{0.99\hsize}
   \begin{center}
-   \includegraphics[scale=0.6]{figures/odommodel.png}
+   \includegraphics[scale=0.6]{odommodel.png}
    \vspace{-3.0mm}
   \end{center}
    \vspace{-0.5mm}

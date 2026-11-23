@@ -1,6 +1,39 @@
 \chapter{実環境におけるシステム評価}
 \label{cha:field_experiments}
-\graphicspath{{figures/05_field_experiments}}
+\graphicspath{{figures/05}}
+
+\subsection{Wi-Fi地図}
+Wi-Fi地図の地図構築に必要なステップは下記の通りである．
+\subsection*{1. データ取得}
+ロボットを手動走行させ，オドメトリ，LiDARのスキャンデータ，Wi-Fi信号強度を記録する．
+次にオドメトリ，LiDARのスキャンデータから先ほどのgmappingを用いて幾何地図を作成する．
+幾何地図作成後，rosのAMCLから幾何地図を作成した際のデータを用いて自己位置推定を行う．
+その自己位置推定結果$\displaystyle \mathbf{x} =( x,y,\theta )$と,Wi-Fi信号強度の観測値$\displaystyle \mathbf{z}$に対応付けたデータセットを作成する．
+ただし，$\displaystyle \mathbf{z}$は，位置$\displaystyle \mathbf{x}$で観測できた異なる$\displaystyle m$個のAPの信号強度を並べたベクトル$\displaystyle \mathbf{z} =[ z_{1} ,z_{2} ,...,z_{m}]$である．
+
+この際，各マックアドレスのWi-Fiの信号強度は3秒間に観測されたデータの平均値とした．
+また，5か所以上でWi-Fiの信号強度を観測できたAPのみを使用した．
+これはモバイルAPを含まないようにするためである．
+ただしこれらの数値は，Wi-Fiの信号強度のノイズや減衰の状況などを考慮して決定したものではないため，より適切な数値の選択のための手法構築は今後の課題である．
+\subsection*{2. ガウス回帰過程}
+ロボットがデータ取得時に走行した経路上のみWi-Fi信号強度のデータが存在し，走行経路以外ではデータがないため，自己位置推定が不可能である．
+したがって，任意の経路で自己位置推定を行うためには，走行経路全域のWi-Fi信号強度を格納した地図が必要となる．
+そこで本研究室では，ガウス過程回帰(GPR:Gaussian Process Regression)を用いて，データセットをもとに走行経路外のWi-Fiの信号強度を補完することで，走行環境全域の信号強度の分布を予測した\cite{miyagusuku2018precise}．
+\subsection*{3. Wi-Fi地図作成}
+ガウス過程回帰により取得した分布をもとに，指定した解像度の格子にデータを格納することで，最終的なWi-Fi信号強度を用いた自己位置推定に用いる地図が完成する．
+予測値の平均値は各APごとに行われ，分散は全てのAPに共通するため，Wi-Fi地図はアクセスポイント数枚，分散地図は一枚となる．
+グリッドサイズは1[m]とした．
+\begin{figure}[h]
+ \begin{minipage}{0.99\hsize}
+  \begin{center}
+   \includegraphics[scale=0.4]{gprwifi.pdf}
+   \vspace{-3.0mm}
+  \end{center}
+   \vspace{-0.5mm}
+  \caption{Overview of wireless-based localization using signal strength mapping\cite{miyagusuku2018precise}}
+  \label{fig:gprwifi}
+  \end{minipage}
+\end{figure}
 
 
 \section{実験目的}
