@@ -1,7 +1,8 @@
-\chapter{シミュレーション評価}
+\chapter{LiDARと不可視情報を統合したMulti MCLと位置推定切り替えシステム}
 \label{cha:simulation_experiments}
 \graphicspath{{figures/06}}
-
+\section{LiDARと磁気，Wi-Fi情報を統合したMulti MCL}
+\section{位置推定切り替えシステム}
 \section{自己位置推定の実験}
 \subsection{実験方法}
 本研究では，開発したMag MCL，Wi-Fi MCLと従来手法を比較するとともに，
@@ -149,7 +150,7 @@ Wi-Fi MCLのESSの閾値は0.99，その他の手法の閾値は0.9，パーテ�
   \begin{minipage}{\columnwidth}
     \centering
     \includegraphics[
-      width=0.9\columnwidth
+      width=0.5\columnwidth
     ]{path1_result.png}
     \captionof{figure}{
       Comparison of localization trajectories on Path 1
@@ -166,7 +167,7 @@ Wi-Fi MCLのESSの閾値は0.99，その他の手法の閾値は0.9，パーテ�
   \begin{minipage}{\columnwidth}
     \centering
     \includegraphics[
-      width=0.9\columnwidth
+      width=0.5\columnwidth
     ]{path2_result.png}
     \captionof{figure}{
       Comparison of localization trajectories on Path 2
@@ -210,7 +211,7 @@ LiDAR MCLの自己位置推定精度が低下した．
 \begin{figure}[tb]
   \centering
   \includegraphics[
-    width=0.9\columnwidth
+    width=0.5\columnwidth
   ]{priority.png}
   \caption{
     Temporal changes in the priority values of each localization method
@@ -280,7 +281,7 @@ Wi-Fi MCLおよびMag MCLを並列に動作させ，
 \begin{figure}[t]
   \centering
   \includegraphics[
-    width=0.9\columnwidth
+    width=0.5\columnwidth
   ]{mahalanobis_full_range_with_max.png}
   \caption{
     Comparison of squared Mahalanobis distance distributions for Mag MCL and Wi-Fi MCL on Path1 and Path2
@@ -320,7 +321,7 @@ Wi-Fi MCLおよびMag MCLを並列に動作させ，
 \end{table}
 
 
-\section{結言}
+\section{おわりに}
 本稿では，磁気強度およびWi-Fi電波強度を用いた不可視地図に基づく自己位置推定と，
 不可視地図とLiDARを統合した自己位置推定手法を提案した．
 実験の結果，磁気およびWi-Fiを用いた自己位置推定の精度が向上し，
@@ -331,143 +332,3 @@ Wi-Fi MCLおよびMag MCLを並列に動作させ，
 今後は，LiDAR MCLの位置推定復帰手法を構築するとともに，
 オドメトリの変化を伴わない誘拐状態の検知および復帰を可能とする
 自己位置推定システムの実現を目指す．
-
-
-
-
-\section{シミュレーション環境の構築}
-\label{sec:sim_environment}
-
-本研究では，LiDAR，地磁気，Wi-Fi，およびこれらを組み合わせた Multi MCL を並列に動作させ，各 MCL の推定状態に応じて粒子を共有する手法を提案する．各 MCL の観測整合性および粒子分布の状態を優先度として表し，その優先度に基づいて外部粒子の導入量と取り込み元を決定する．
-
-LiDAR MCL および Multi MCL では，自身の粒子フィルタによる推定を基本とし，推定状態の悪化に応じて他の MCL の位置仮説を導入する．一方，地磁気 MCL および Wi-Fi MCL は，単独では位置推定の精度や識別性が十分でない場合を想定し，通常状態でもリサンプリングのたびに外部粒子を導入する．このように，各 MCL の特性に応じて粒子共有の方針を変えることで，推定の継続性と，推定状態が悪化した際の回復を図る．
-
-各 MCL の優先度を $p_i$ とする．優先度は数値が小さいほど採用を優先し，異常状態を $p_i=100$ で表す．基準優先度は，LiDAR MCL と Multi MCL を $0$，地磁気 MCL を $80$，Wi-Fi MCL を $90$ とする．これは，良好な状態にある LiDAR・Multi MCL の位置仮説を優先的に利用し，地磁気・Wi-Fi MCL を補助的な位置仮説の供給源として扱う設計である．
-
-LiDAR MCL および Multi MCL の優先度は，平均 LiDAR 尤度と粒子分布の広がりから求める．平均 LiDAR 尤度には一次ローパスフィルタを適用し，一時的な観測変動の影響を抑える．
-\begin{equation}
-  \bar{\ell}_{i,t}
-  =
-  (1-\alpha)\bar{\ell}_{i,t-1}
-  +\alpha\ell_{i,t}.
-  \label{eq:lidar_likelihood_lpf}
-\end{equation}
-ここで，$\ell_{i,t}$ は時刻 $t$ における平均 LiDAR 尤度，$\bar{\ell}_{i,t}$ は平滑化後の値である．
-
-粒子分布の広がりには，粒子の二次元位置から等重みで算出した共分散行列 $\Sigma_{i,t}$ を用い，次式で表される誤差楕円の長半径を使用する．
-\begin{equation}
-  s_{i,t}
-  =
-  \sqrt{\chi^2_{2,0.95}\lambda_{\max}(\Sigma_{i,t})}.
-  \label{eq:particle_spread}
-\end{equation}
-ここで，$\lambda_{\max}$ は最大固有値であり，$\chi^2_{2,0.95}=5.991$ とする．この値は粒子分布の広がりを評価するための尺度として使用する．
-
-平滑化後の LiDAR 尤度と分布の広がりを，それぞれ事前に用意した参照テーブルにより，失敗指標 $q_{\ell,i,t}$，$q_{s,i,t}$ に変換する．参照テーブルには各指標の区間に対応する平滑化済みの失敗指標が格納されており，LiDAR 尤度の低下や粒子分布の拡大に伴う推定状態の悪化を評価する．各指標の上下限を超えた場合には，良好側を $0$，悪化側を $1$ とする．
-
-両指標の平均を
-\begin{equation}
-  \bar{q}_{i,t}
-  =
-  \frac{q_{\ell,i,t}+q_{s,i,t}}{2}
-  \label{eq:mean_failure_indicator}
-\end{equation}
-とし，通常時の優先度を
-\begin{equation}
-  p_{i,t}
-  =
-  \operatorname{clip}
-  \left(
-    \operatorname{round}
-    \left[
-      b_i+(u-b_i)\frac{\bar{q}_{i,t}}{\tau_q}
-    \right],
-    b_i,u
-  \right)
-  \label{eq:normal_priority}
-\end{equation}
-で算出する．ここで，$b_i$ は基準優先度，$u=80$ は通常時の上限，$\tau_q=0.8$ は失敗指標の判定閾値である．
-
-ただし，いずれかの失敗指標が閾値以上となった場合，LiDAR MCL では優先度を $100$ とする．Multi MCL では，LiDAR 以外の観測も使用することを考慮し，この条件だけでは異常状態とせず，優先度を通常時の上限 $80$ とする．指標の算出に必要な情報が無効な場合は，両 MCL とも優先度を $100$ とする．
-
-さらに，Wi-Fi 観測との整合性，および他の MCL との位置整合性によって異常判定を補完する．Wi-Fi 観測との整合性は，各 MCL が保持する粒子群の平均 Wi-Fi 尤度を用いて評価する．Wi-Fi 観測の更新時に閾値判定を行い，次の更新まではその結果を保持する．平均尤度が閾値未満の場合，または初回の判定が行われていない場合は，異常状態とする．
-
-位置整合性については，LiDAR MCL または Multi MCL の推定位置が，Wi-Fi MCL と地磁気 MCL の誤差楕円内にあるかを評価する．取り込み元として利用可能な両 MCL に対し，自身の推定位置が両方の楕円外にある場合は異常状態とする．楕円内外の判定には，共分散行列を正則化したマハラノビス距離を用いる．Wi-Fi 尤度判定または位置整合性判定が異常となった場合，LiDAR MCL と Multi MCL の優先度を $100$ に設定する．
-
-地磁気 MCL では，平均地磁気尤度が閾値以下の場合，または Wi-Fi 尤度判定が異常の場合に優先度を $100$ とし，それ以外では基準優先度 $80$ を用いる．Wi-Fi MCL では，Wi-Fi 尤度判定に応じて基準優先度 $90$ と異常時の $100$ を切り替える．
-
-粒子共有では，各 MCL の優先度に応じて，粒子集合の一部を他の MCL 由来の粒子で置き換える．外部粒子の導入割合を $\rho_i$ とし，次式で決定する．
-\begin{equation}
-  \rho_i
-  =
-  \begin{cases}
-    0.2,
-      & p_i=100, \\[3pt]
-    0.2\,
-    \operatorname{clip}
-    \left(
-      \dfrac{p_i-b_i}{80-b_i},0,1
-    \right),
-      & i\in\{\mathrm{LiDAR},\mathrm{Multi}\},
-        \quad p_i\ne100, \\[8pt]
-    0.2,
-      & i\in\{\mathrm{Mag},\mathrm{WiFi}\},
-        \quad p_i\ne100.
-  \end{cases}
-  \label{eq:particle_sharing_ratio}
-\end{equation}
-
-LiDAR MCL および Multi MCL は，優先度が基準値にある場合には自身の粒子のみを使用する．推定状態が悪化して優先度の数値が増加すると，外部粒子の割合を最大 $20\%$ まで増やす．これにより，自身の推定を維持しながら，状態の悪化に応じて他の MCL の位置仮説を取り込む．
-
-地磁気 MCL および Wi-Fi MCL は，通常状態でも外部粒子を $20\%$ 導入する．これは，単独観測による位置推定の曖昧さを，他の MCL が保持する位置仮説によって補うためである．なお，いずれの MCL も異常時の共有割合は $20\%$ であり，異常状態への移行によって共有割合をさらに増やす設定にはしていない．
-
-MCL $i$ の粒子数を $N_i$ とすると，外部から導入する粒子数は
-\begin{equation}
-  K_i
-  =
-  \operatorname{round}(N_i\rho_i)
-  \label{eq:external_particle_count}
-\end{equation}
-となる．自身から $N_i-K_i$ 個，他の MCL から合計 $K_i$ 個を抽出することで，総粒子数を維持する．
-
-取り込み元は，自身以外の MCL のうち，優先度が $0$ 以上 $95$ 以下であり，粒子情報が有効なものとする．利用可能な取り込み元の集合を $\mathcal{D}_i$ とし，MCL $j$ からの採用比率を
-\begin{equation}
-  a_{ij}
-  =
-  \frac{100-p_j}
-       {\displaystyle\sum_{k\in\mathcal{D}_i}(100-p_k)}
-  \label{eq:donor_allocation_ratio}
-\end{equation}
-で決定する．これにより，優先度の数値が小さい MCL ほど多くの粒子を提供する．採用数の整数化には最大剰余法を用い，外部粒子数の合計を $K_i$ に一致させる．利用可能な取り込み元が存在しない場合は，自身の粒子のみを使用する．
-
-各取り込み元の内部では，粒子重みに基づく系統的リサンプリングによって指定個数の粒子を抽出する．したがって，本手法は，MCL 間では優先度に基づいて採用数を配分し，各 MCL 内では観測に基づく粒子重みによって位置仮説を選択する，二段階の粒子選択として構成される．
-
-共有を伴うリサンプリングは，有効サンプルサイズに基づいて実行する．LiDAR・地磁気・Multi MCL では，通常時は有効サンプルサイズの低下に加え，前回のリサンプリングからの移動距離または回転角を実行条件とする．異常状態ではこれらの条件によらず実行する．Wi-Fi MCL では，Wi-Fi 観測の更新時に，有効サンプルサイズの低下または異常状態を条件として実行する．これにより，各 MCL の観測更新と推定状態に応じたタイミングで粒子集合を再構成する．
-
-\section{実験概要}
-\label{sec:sim_exp}
-
-シミュレーションします．
-いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい
-
-
-\section{考察}
-
-考察を\ref{tab:performance_comparison}にまとめます．
-うううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううううう
-
-\label{sec:sim_discussion}
-\begin{table}[htb]
-  \centering
-  \caption{性能比較}
-  \label{tab:performance_comparison}
-  \begin{tabular}{lccc}
-    \toprule
-    項目 & 提案手法 & 従来手法 A & 従来手法 B \\
-    \midrule
-    精度 (\%) & 95.2 & 92.1 & 88.5 \\
-    処理時間 (ms) & 12.5 & 18.0 & 10.2 \\
-    消費電力 (W) & 3.1 & 3.5 & 2.9 \\
-    \bottomrule
-  \end{tabular}
-\end{table}

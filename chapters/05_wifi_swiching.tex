@@ -1,42 +1,22 @@
-\chapter{実環境におけるシステム評価}
+\chapter{指向性アンテナを用いたWi-Fi信号強度に基づく自己位置推定の開発}
 \label{cha:field_experiments}
 \graphicspath{{figures/05}}
 
-\subsection{Wi-Fi地図}
+\section{はじめに}
+\section{指向性アンテナを用いたWi-Fi地図作成}
 Wi-Fi地図の地図構築に必要なステップは下記の通りである．
-\subsection*{1. データ取得}
-ロボットを手動走行させ，オドメトリ，LiDARのスキャンデータ，Wi-Fi信号強度を記録する．
-次にオドメトリ，LiDARのスキャンデータから先ほどのgmappingを用いて幾何地図を作成する．
-幾何地図作成後，rosのAMCLから幾何地図を作成した際のデータを用いて自己位置推定を行う．
-その自己位置推定結果$\displaystyle \mathbf{x} =( x,y,\theta )$と,Wi-Fi信号強度の観測値$\displaystyle \mathbf{z}$に対応付けたデータセットを作成する．
-ただし，$\displaystyle \mathbf{z}$は，位置$\displaystyle \mathbf{x}$で観測できた異なる$\displaystyle m$個のAPの信号強度を並べたベクトル$\displaystyle \mathbf{z} =[ z_{1} ,z_{2} ,...,z_{m}]$である．
+\subsection{指向性アンテナを用いたデータ収集}
+\subsection{指向性アンテナを用いた強度情報の計算}
+\subsection{ガウス過程回帰を用いた信号強度によるWi-Fi地図作成}
+\subsection{ガウス過程回帰を用いたAoAによる角度地図作成}
 
-この際，各マックアドレスのWi-Fiの信号強度は3秒間に観測されたデータの平均値とした．
-また，5か所以上でWi-Fiの信号強度を観測できたAPのみを使用した．
-これはモバイルAPを含まないようにするためである．
-ただしこれらの数値は，Wi-Fiの信号強度のノイズや減衰の状況などを考慮して決定したものではないため，より適切な数値の選択のための手法構築は今後の課題である．
-\subsection*{2. ガウス回帰過程}
-ロボットがデータ取得時に走行した経路上のみWi-Fi信号強度のデータが存在し，走行経路以外ではデータがないため，自己位置推定が不可能である．
-したがって，任意の経路で自己位置推定を行うためには，走行経路全域のWi-Fi信号強度を格納した地図が必要となる．
-そこで本研究室では，ガウス過程回帰(GPR:Gaussian Process Regression)を用いて，データセットをもとに走行経路外のWi-Fiの信号強度を補完することで，走行環境全域の信号強度の分布を予測した\cite{miyagusuku2018precise}．
-\subsection*{3. Wi-Fi地図作成}
-ガウス過程回帰により取得した分布をもとに，指定した解像度の格子にデータを格納することで，最終的なWi-Fi信号強度を用いた自己位置推定に用いる地図が完成する．
-予測値の平均値は各APごとに行われ，分散は全てのAPに共通するため，Wi-Fi地図はアクセスポイント数枚，分散地図は一枚となる．
-グリッドサイズは1[m]とした．
-\begin{figure}[h]
- \begin{minipage}{0.99\hsize}
-  \begin{center}
-   \includegraphics[scale=0.4]{gprwifi.pdf}
-   \vspace{-3.0mm}
-  \end{center}
-   \vspace{-0.5mm}
-  \caption{Overview of wireless-based localization using signal strength mapping\cite{miyagusuku2018precise}}
-  \label{fig:gprwifi}
-  \end{minipage}
-\end{figure}
+\section{指向性アンテナによるWi-Fi MCL}
+\subsection{Wi-Fi信号強度とWi-Fi地図に基づく尤度計算}
+\subsection{AoAによる角度推定と角度地図に基づく尤度計算}
+\subsection{角度尤度の適応条件}
 
-
-\section{実験目的}
+\section{指向性アンテナによるWi-Fi MCLの精度評価実験}
+\subsection{実験目的}
 \label{sec:exp_purpose}
 
 \eqref{eq:normal_distribution}はガウス分布です．
@@ -47,146 +27,21 @@ Wi-Fi地図の地図構築に必要なステップは下記の通りである．
 
 
 
-\section{実験環境}
+\subsection{実験環境}
 \label{sec:exp_environment}
 
 実験環境を説明します．
 
 
-\section{実験結果}
+\subsection{実験結果}
 \label{sec:exp_results}
 
-ロボットのオドメトリは\eqref{eq:odometry}で計算されます．
-次の位置姿勢 $(x_{k+1}, y_{k+1}, \theta_{k+1})$ は，現在の位置姿勢 $(x_k, y_k, \theta_k)$ と，微小時間 $\Delta t$ の間の並進速度 $v$ および角速度 $\omega$ を使って更新されます．
 
-\begin{equation}
-  \begin{cases}
-    x_{k+1} = x_k + v \Delta t \cos(\theta_k + \frac{\omega \Delta t}{2}) \\
-    y_{k+1} = y_k + v \Delta t \sin(\theta_k + \frac{\omega \Delta t}{2}) \\
-    \theta_{k+1} = \theta_k + \omega \Delta t
-  \end{cases}
-  \label{eq:odometry}
-\end{equation}
 
-\subsection{現在の位置姿勢}
-$(x_k, y_k, \theta_k)$ は現在の位置姿勢です．
-
-\subsection{次の位置姿勢}
-$(x_{k+1}, y_{k+1}, \theta_{k+1})$ 次の位置姿勢です．
-
-\subsection{更新}
-微小時間 $\Delta t$ の間の並進速度 $v$ および角速度 $\omega$ を使って更新されます．
-\subsection{2台の3D-LiDAR間の位置姿勢補正}
-
-2台の3D-LiDAR間の位置・姿勢ずれを補正するため，LiDAR 1の点群を基準としてLiDAR 2の点群にICPを適用した．
-7フレームについて得られたICP補正量を\cref{tab:icp_correction}に示す．
-
-\begin{table}[tb]
-    \centering
-    \caption{ICPによって算出された補正量}
-    \label{tab:icp_correction}
-    \begin{tabular}{c|rrr|rrr|r}
-        \hline
-        データ & $x$ [m] & $y$ [m] & $z$ [m] & Roll [deg] & Pitch [deg] & Yaw [deg] & Score \\
-        \hline
-        1 & 0.033 & -0.011 & -0.036 & 0.982 & -0.336 & 0.491 & 2.454 \\
-        2 & 0.033 & -0.008 & -0.038 & 1.014 & -0.510 & 0.456 & 2.273 \\
-        3 & 0.031 & -0.010 & -0.035 & 0.935 & -0.226 & 0.510 & 2.119 \\
-        4 & 0.029 & -0.007 & -0.035 & 0.946 & -0.264 & 0.518 & 2.380 \\
-        5 & 0.017 &  0.003 & -0.034 & 0.999 & -0.233 & 0.441 & 2.186 \\
-        6 & 0.025 &  0.000 & -0.039 & 0.938 & -0.469 & 0.473 & 2.289 \\
-        7 & 0.017 &  0.001 & -0.034 & 0.926 & -0.184 & 0.422 & 2.303 \\
-        \hline
-    \end{tabular}
-\end{table}
-
-ICPによって得られた補正量の統計値を\cref{tab:icp_correction_stats}に示す．
-
-\begin{table}[tb]
-    \centering
-    \caption{ICP補正量の統計値}
-    \label{tab:icp_correction_stats}
-    \begin{tabular}{c|rrrr}
-        \hline
-        項目 & 平均 & 最小値 & 最大値 & 標準偏差 \\
-        \hline
-        $x$ [m]       &  0.0264 &  0.017 &  0.033 & 0.0065 \\
-        $y$ [m]       & -0.0046 & -0.011 &  0.003 & 0.0053 \\
-        $z$ [m]       & -0.0359 & -0.039 & -0.034 & 0.0018 \\
-        Roll [deg]    &  0.963  &  0.926 &  1.014 & 0.032  \\
-        Pitch [deg]   & -0.317  & -0.510 & -0.184 & 0.117  \\
-        Yaw [deg]     &  0.473  &  0.422 &  0.518 & 0.033  \\
-        Score         &  2.286  &  2.119 &  2.454 & 0.104  \\
-        \hline
-    \end{tabular}
-\end{table}
-
-並進補正量の大きさは平均45.3~mm，最小38.0~mm，最大51.0~mmであった．
-また，回転補正量の大きさは平均1.12~deg，最大1.22~degであった．
-
-これらの結果をもとに，LiDAR 2に適用する固定補正値を\cref{tab:fixed_correction}のように設定した．
-
-\begin{table}[tb]
-    \centering
-    \caption{LiDAR 2に適用する固定補正値}
-    \label{tab:fixed_correction}
-    \begin{tabular}{rrr|rrr}
-        \hline
-        $x$ [m] & $y$ [m] & $z$ [m] & Roll [deg] & Pitch [deg] & Yaw [deg] \\
-        \hline
-        0.026 & -0.006 & -0.034 & 0.95 & -0.20 & 0.47 \\
-        \hline
-    \end{tabular}
-\end{table}
-
-固定補正値を適用した後，再度ICPを用いて残差を評価した．
-結果を\cref{tab:icp_residual}に示す．
-
-\begin{table}[tb]
-    \centering
-    \caption{固定補正適用後のICP残差}
-    \label{tab:icp_residual}
-    \begin{tabular}{c|rrr|rrr|r}
-        \hline
-        データ & $x$ [m] & $y$ [m] & $z$ [m] & Roll [deg] & Pitch [deg] & Yaw [deg] & Score \\
-        \hline
-        1 &  0.001 &  0.000 & -0.001 & -0.011 & -0.018 & 0.012 & 2.376 \\
-        2 & -0.003 &  0.004 &  0.000 & -0.016 &  0.064 & 0.039 & 2.341 \\
-        3 &  0.004 & -0.001 & -0.001 &  0.049 & -0.109 & 0.023 & 2.355 \\
-        4 &  0.006 &  0.001 & -0.004 &  0.089 & -0.315 & 0.003 & 2.299 \\
-        5 &  0.007 & -0.005 & -0.002 &  0.031 & -0.148 & 0.025 & 2.331 \\
-        6 &  0.000 &  0.000 &  0.000 & -0.004 &  0.011 & 0.005 & 2.118 \\
-        7 &  0.001 & -0.001 &  0.000 & -0.010 &  0.010 & 0.028 & 2.300 \\
-        \hline
-    \end{tabular}
-\end{table}
-
-固定補正後の残差の統計値を\cref{tab:icp_residual_stats}に示す．
-
-\begin{table}[tb]
-    \centering
-    \caption{固定補正後の残差}
-    \label{tab:icp_residual_stats}
-    \begin{tabular}{c|rrr}
-        \hline
-        項目 & 平均残差 & 平均絶対残差 & 最大絶対残差 \\
-        \hline
-        $x$ [m]       &  0.0023 & 0.0031 & 0.007 \\
-        $y$ [m]       & -0.0003 & 0.0017 & 0.005 \\
-        $z$ [m]       & -0.0011 & 0.0011 & 0.004 \\
-        Roll [deg]    &  0.018  & 0.030  & 0.089 \\
-        Pitch [deg]   & -0.072  & 0.096  & 0.315 \\
-        Yaw [deg]     &  0.019  & 0.019  & 0.039 \\
-        \hline
-    \end{tabular}
-\end{table}
-
-3次元の並進残差の大きさは平均4.0~mm，最大8.8~mmであった．
-以上より，ICPから算出した補正値を固定値として適用することで，
-2台の3D-LiDAR間の点群ずれを1~cm以内まで低減できることを確認した．
 \section{考察}
 \label{sec:exp_discussion}
 
 
 
 考察します．
+\section{おわりに}

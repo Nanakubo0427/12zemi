@@ -1,42 +1,25 @@
-\chapter{ソフトウェア設計}
-\label{cha:software_design}
+\chapter{磁気強度による自己位置推定の開発}
+
 \graphicspath{{figures/04}}
 
 
-\section{カルマンフィルタの実装}
+\section{はじめに}
 \label{sec:kalman_filter}
 
-カルマンフィルタの疑似コードは\ref{alg:kalman_filter}です．
-あああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ
+\section{磁気センサのキャリブレーション}
+\subsection{球面フィッティングによるオフセット値の算出と軸バイアスの補正}
 
-\begin{algorithm}
-  \caption{Kalman Filter}
-  \label{alg:kalman_filter}
-  \begin{algorithmic}[1]
-    \State \textbf{Input:} Initial State $\mathbf{\hat{x}}_{0|0}$, Initial Covariance $\mathbf{P}_{0|0}$
-    \State \textbf{Output:} Estimated State at time $k$, $\mathbf{\hat{x}}_{k|k}$
-    \State
-    \For{$k = 1, 2, \dots$}
-    %
-    \State \textbf{Prediction Step}
-    %
-    \State \quad $\mathbf{\hat{x}}_{k|k-1} \gets \mathbf{A} \mathbf{\hat{x}}_{k-1|k-1} + \mathbf{B} \mathbf{u}_k$
-    \Comment{Project the state ahead}
-    \State \quad $\mathbf{P}_{k|k-1} \gets \mathbf{A} \mathbf{P}_{k-1|k-1} \mathbf{A}^{\top} + \mathbf{Q}$
-    \Comment{Project the error covariance ahead}
-    \State 
-    %
-    \State \textbf{Update Step}
-    %
-    \State \quad $\mathbf{K}_k \gets \mathbf{P}_{k|k-1} \mathbf{C}^{\top} (\mathbf{C} \mathbf{P}_{k|k-1} \mathbf{C}^{\top} + \mathbf{R})^{-1}$
-    \Comment{Compute the Kalman gain}
-    \State \quad $\mathbf{\hat{x}}_{k|k} \gets \mathbf{\hat{x}}_{k|k-1} + \mathbf{K}_k (\mathbf{y}_k - \mathbf{C} \mathbf{\hat{x}}_{k|k-1})$
-    \Comment{Update the state estimate}
-    \State \quad $\mathbf{P}_{k|k} \gets (\mathbf{I} - \mathbf{K}_k \mathbf{C}) \mathbf{P}_{k|k-1}$
-    \Comment{Update the error covariance}
-    \EndFor
-  \end{algorithmic}
-\end{algorithm}
+\section{ガウス過程回帰による磁気地図構築}
+\subsection{磁気強度の取得}
+\subsection{ガウス過程回帰を用いた磁気地図構築}
+
+\section{局所GPRを用いた大規模磁気地図作成}
+\subsection{K-means法による観測データのクラスタリング}
+\subsection{局所GPRを用いた磁気地図構築}
+
+\section{磁気強度に基づく自己位置推定}
+
+\section{LiDARと磁気強度に基づく自己位置推定の統合}
 
 \section{実環境における自己位置推定実験}
 \subsection{実験方法}
@@ -95,7 +78,7 @@
 \begin{figure}[H]
   \centering
   % figures/sample.png を置くか、パスを差し替え
-  \includegraphics[width=0.52\columnwidth]{lidar_mag_plot.png}
+  \includegraphics[width=0.3\columnwidth]{lidar_mag_plot.png}
   \caption{Robot trajectories estimated by Mag MCL, LiDAR-Mag MCL, LiDAR MCL (ESS = 0.99), and GNSS in the crowded Expo environment}
   \label{fig:sample}
 \end{figure}
@@ -153,7 +136,7 @@ LiDAR MCLの推定結果が含まれるかどうかの指標を併用するこ�
 失敗検知が可能になると考える．
 
 
-\begin{figure}[t]
+\begin{figure}[H]
   \centering
   \begin{subfigure}[t]{0.25\columnwidth}
     \centering
@@ -162,7 +145,7 @@ LiDAR MCLの推定結果が含まれるかどうかの指標を併用するこ�
     \label{fig:imu_accel}
   \end{subfigure}
   \hfill
-  \begin{subfigure}[t]{0.5\columnwidth}
+  \begin{subfigure}[H]{0.3\columnwidth}
     \centering
     \includegraphics[width=\linewidth]{geomag_map.jpg}
     \caption{Expo site}
@@ -199,7 +182,7 @@ LiDAR MCLの推定結果が含まれるかどうかの指標を併用するこ�
   \end{tabular}
 \end{table}
 
-\section{結言}
+\section{おわりに}
 本稿では，磁気強度を用いた不可視地図に基づく自己位置推定および
 磁気とLiDARを統合した自己位置推定手法を提案し，実環境の屋内外および
 人混み環境での自己位置推定実験を行った．

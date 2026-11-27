@@ -38,6 +38,7 @@
   \label{tab:spec_nict}
  \end{center}
 \end{table}
+\subsection{磁気センサ}
 \subsection{Wi-Fiセンサ}
 
 このセンサーは無指向性であり，全方向からWi-Fi信号を受信できる．
@@ -75,10 +76,12 @@
   \label{tab:spec_ant}
  \end{center}
 \end{table}
-\section{自己位置推定に用いる地図}
-LiDARまたはWi-Fiを用いた自己位置推定を行うには，それぞれのセンサごとに対応した地図が必要となる．
-本研究室におけるそれぞれの地図構築手法について説明する．
-\subsection{幾何地図}
+
+\section{ソフトウェア構成}
+\subsection{自律分散システムとROS}
+\subsection{マルチナビゲータシステム}
+
+\section{幾何地図作成}
 幾何地図の作成には，ROSのSLAMパッケージの一つであるgmappingを使用した．
 gmappingは，オドメトリデータとLiDARの2次元スキャンデータを用いて地図を作成するパッケージである．
 本論文では，LiDARにより取得した2Dスキャンデータと，エンコーダとIMUデータから算出したオドメトリ情報を入力として地図を作成した．
@@ -116,7 +119,7 @@ gmappingによる地図と占有格子地図に変換した地図を\cref{fig:gr
   \end{minipage}
 \end{figure}
 
-\section{LiDARを用いた局所的自己位置推定}
+\section{LiDARに基づく自己位置推定}
 本研究室のLiDARを用いた自己位置推定はDellaertらによって提案されたMCL\cite{mcl}がベースとなっている．
 MCLとは，ロボットを疑似に表現したパーティクルと呼ばれる粒子を用いることで，ロボットの存在確率を表現する手法である．
 位置推定のプロセスは以下の通りである．
@@ -261,3 +264,6 @@ MCLでは3.4.1節で説明した通り，1ステップ移動するたびにノ�
 \begin{equation}
  \displaystyle \eta _{ess} =\frac{1}{\sum _{j=1}^{n} \omega _{j}^{2}}   
 \end{equation}
+
+\subsection{おわりに}
+あ
